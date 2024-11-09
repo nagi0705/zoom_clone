@@ -10,11 +10,9 @@ const protectedRoutes = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-    if (protectedRoutes(req)) {
-        const authObject = await auth();
-        await authObject.redirectToSignIn();
-    }
-})
+    if (protectedRoutes(req)) await auth.protect()
+
+});
 
 export const config = {
     matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
