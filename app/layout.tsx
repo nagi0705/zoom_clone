@@ -3,6 +3,8 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 
+import { Toaster } from "@/components/ui/toaster";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -20,7 +22,7 @@ export default function RootLayout({
       <head>
         {/* 必要に応じてメタタグを追加可能 */}
       </head>
-      <body className={`${inter.className} bg-dark-2`}>
+      
         <ClerkProvider
           appearance={{
             layout: {
@@ -37,10 +39,12 @@ export default function RootLayout({
           }}
           signInUrl="/sign-in"
           signUpUrl="/sign-up"
-        >
+      >
+        <body className={`${inter.className} bg-dark-2`}>
           {children}
-        </ClerkProvider>
+          <Toaster />
       </body>
+      </ClerkProvider>
     </html>
   );
 }
