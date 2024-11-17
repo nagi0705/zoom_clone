@@ -3,7 +3,7 @@
 import { useState } from "react"
 import HomeCard from "./HomeCard"
 import { useRouter } from "next/navigation"
-import MeetingModal from "./MeeetingModal"
+import MeetingModal from "@/components/MeetingModal"
 import { useUser } from "@clerk/nextjs"
 import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk"
 import { useToast } from "@/hooks/use-toast"
