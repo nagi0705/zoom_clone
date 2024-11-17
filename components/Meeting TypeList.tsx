@@ -1,105 +1,161 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import HomeCard from "./HomeCard"
-import { useRouter } from "next/navigation"
-import MeetingModal from "@/components/MeetingModal"
-import { useUser } from "@clerk/nextjs"
-import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk"
-import { useToast } from "@/hooks/use-toast"
+import { useState } from "react";
+import HomeCard from "./HomeCard";
+import { useRouter } from "next/navigation";
+import MeetingModal from "@/components/MeetingModal";
+import { useUser } from "@clerk/nextjs";
+import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
+import { useToast } from "@/hooks/use-toast";
 
 const MeetingTypeList = () => {
-    const router = useRouter();
-    const [meetingState, setMeetingState] = useState<'isInstantMeeting' |'isScheduleMeeting' | 'isJoinMeeting' |  undefined>()
-    const { user } = useUser();
-    const client = useStreamVideoClient();
-    const values: { dateTime: Date; duration: string; link: string; description?: string } = {
-        dateTime: new Date(),
-        duration: '',
-        link: ''
-    };
+  const router = useRouter();
+  const [meetingState, setMeetingState] = useState<
+    "isInstantMeeting" | "isScheduleMeeting" | "isJoinMeeting" | undefined
+  >();
+  const [isMeetingCreated, setIsMeetingCreated] = useState(false); // Meeting Created 状態
+  const { user } = useUser();
+  const client = useStreamVideoClient();
   const [callDetails, setCallDetails] = useState<Call | undefined>();
-  const { toast } = useToast()
-  
-    const createMeeting = async () => { 
-      if (!client || !user) return;
-      
-      try {
-        if (!values.dateTime) {
-          toast({ title: "Please select a date and time" })
-          return;
-        }
-        const id = crypto.randomUUID();
-        const call = client.call('default', id);
-         
-        if (!call) throw new Error('Failed to create call')
-        
-        const startsAt = values.dateTime.toISOString() || new Date(Date.now()).toISOString();
-        const description = values.description || 'Instant meeting';
+  const { toast } = useToast();
 
-        await call.getOrCreate({
-          data: {
-            starts_at: startsAt,
-            custom: {
-              description
-            }
-          }
-        })
-
-        setCallDetails(call);
-
-        if (!values.description) {
-          router.push(`/meeting/${call.id}`)
-        }
-
-        toast({ title: "Meeting Created" })
-      } catch (error) { 
-        console.log(error);
-        toast({ title: "Failed to create meeting", })
-      }
+  const createInstantMeeting = async () => {
+    if (!client || !user) {
+      toast({
+        title: "Error",
+        description: "Please log in to start a meeting.",
+      });
+      return;
     }
 
+    try {
+      const id = crypto.randomUUID();
+      const call = client.call("default", id);
+
+      if (!call) throw new Error("Failed to create call");
+
+      await call.getOrCreate();
+
+      setCallDetails(call);
+      setIsMeetingCreated(true); // 「Meeting Created」モーダル表示
+      toast({ title: "Meeting Started", description: `Meeting ID: ${id}` });
+
+      // Redirect to the video call
+      router.push(`/meeting/${id}`);
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Error", description: "Failed to start a meeting." });
+    }
+  };
+
+  const createScheduledMeeting = async () => {
+    if (!client || !user) return;
+
+    try {
+      const id = crypto.randomUUID();
+      const call = client.call("default", id);
+
+      if (!call) throw new Error("Failed to create call");
+
+      await call.getOrCreate();
+
+      setCallDetails(call);
+      setIsMeetingCreated(true); // 「Meeting Created」モーダル表示
+      toast({ title: "Meeting Created" });
+    } catch (error) {
+      console.error(error);
+      toast({ title: "Failed to create meeting" });
+    }
+  };
+
   return (
-      <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
-        <HomeCard  
+    <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+      {/* 即時ミーティング (オレンジボタン) */}
+      <HomeCard
         img="/icons/add-meeting.svg"
         title="New Meeting"
         description="Start an instant meeting"
-        handleClick={() => setMeetingState('isScheduleMeeting')}
-        className="bg-orange-1" 
+        handleClick={() => setMeetingState("isInstantMeeting")}
+        className="bg-orange-1"
       />
+
+      {/* スケジュールミーティング (青ボタン) */}
       <HomeCard
         img="/icons/schedule.svg"
         title="Schedule Meeting"
         description="Plan your meeting"
-        handleClick={() => setMeetingState('isScheduleMeeting')}
+        handleClick={() => setMeetingState("isScheduleMeeting")}
         className="bg-blue-1"
       />
+
       <HomeCard
         img="/icons/recordings.svg"
         title="View Recordings"
         description="Check out your recordings"
-        handleClick={() => setMeetingState('isScheduleMeeting')}
+        handleClick={() => console.log("View Recordings clicked")}
         className="bg-purple-1"
       />
+
       <HomeCard
         img="/icons/join-meeting.svg"
         title="Join Meeting"
         description="via invitation link"
-        handleClick={() => setMeetingState('isJoinMeeting')}
+        handleClick={() => setMeetingState("isJoinMeeting")}
         className="bg-yellow-1"
       />
 
-      <MeetingModal
-        isOpen={meetingState === 'isScheduleMeeting'}
-        onClose={() => setMeetingState(undefined)}
-        title="Start an Instant Meeting"
-        className="text-center"
-        buttonText="Start Meeting"    
-        handleClick={createMeeting}
-      />    
-      </section>
-  )
-}
+      {meetingState === "isInstantMeeting" && (
+        <MeetingModal
+          isOpen={meetingState === "isInstantMeeting"}
+          onClose={() => setMeetingState(undefined)}
+          title="Start an Instant Meeting"
+          buttonText="Start Meeting"
+          handleClick={createInstantMeeting}
+        />
+      )}
 
-export default MeetingTypeList
+      {meetingState === "isScheduleMeeting" && (
+        <MeetingModal
+          isOpen={meetingState === "isScheduleMeeting"}
+          onClose={() => setMeetingState(undefined)}
+          title="Create a New Meeting"
+          buttonText="Schedule Meeting"
+          handleClick={createScheduledMeeting}
+        >
+          <div>
+            <p className="text-gray-300 text-sm text-center">Meeting Description</p>
+            <input
+              type="text"
+              placeholder="Enter meeting description"
+              className="w-full mt-2 rounded-md bg-gray-800 px-3 py-2 text-sm text-white focus:outline-none"
+            />
+            <p className="text-gray-300 text-sm text-center mt-4">Date & Time</p>
+            <input
+              type="datetime-local"
+              className="w-full mt-2 rounded-md bg-gray-800 px-3 py-2 text-sm text-white focus:outline-none"
+            />
+          </div>
+        </MeetingModal>
+      )}
+
+      {isMeetingCreated && (
+        <MeetingModal
+          isOpen={isMeetingCreated}
+          onClose={() => setIsMeetingCreated(false)}
+          title="Meeting Created"
+          buttonText="Copy Invitation"
+          handleClick={() => {
+            navigator.clipboard.writeText("Meeting link copied!");
+            toast({ title: "Link copied!" });
+          }}
+        >
+          <div className="text-center">
+            <p className="text-gray-300 text-sm">Your meeting has been successfully created.</p>
+          </div>
+        </MeetingModal>
+      )}
+    </section>
+  );
+};
+
+export default MeetingTypeList;
