@@ -9,14 +9,14 @@ import { Call, useStreamVideoClient } from "@stream-io/video-react-sdk";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "./ui/input";
 
-interface MeetingModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  title: string;
-  buttonText: string;
-  handleClick: () => void;
-  className?: string;
-}
+// interface MeetingModalProps {
+//   isOpen: boolean;
+//   onClose: () => void;
+//   title: string;
+//   buttonText: string;
+//   handleClick: () => void;
+//   className?: string;
+// }
 
 const MeetingTypeList = () => {
   const router = useRouter();
