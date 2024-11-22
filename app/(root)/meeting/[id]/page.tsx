@@ -1,7 +1,7 @@
 "use client";
 
 import Loader from '@/components/Loader';
-import MeetingRoom from '@/components/MeetingRoom';
+//import MeetingRoom from '@/components/MeetingRoom';
 import MeetingSetup from '@/components/MeetingSetup';
 import { useGetCallById } from '@/hooks/useGetCallById';
 import { useUser } from '@clerk/nextjs';
@@ -9,7 +9,7 @@ import { StreamCall, StreamTheme } from '@stream-io/video-react-sdk';
 import { useState } from 'react';
 
 const Meeting = ({ params: { id } }: { params: { id: string } }) => {
-    const { user, isLoaded } = useUser();
+    const { isLoaded } = useUser(); //user
     const [isSetupComplete, setIsSetupComplete] = useState(false);
     const { call, isCallLoading } = useGetCallById(id);
 
@@ -24,13 +24,17 @@ const Meeting = ({ params: { id } }: { params: { id: string } }) => {
                 <StreamTheme>
                     {!isSetupComplete ? (
                         <MeetingSetup setIsSetupComplete={setIsSetupComplete} />
-                    ) : (
-                        <MeetingRoom>
-                            <p className="text-gray-500 text-xs absolute top-4 right-4">
-                                Logged in as: {user?.email || "Guest"}
-                            </p>
-                        </MeetingRoom>
-                    )}
+            ) : (
+                        <div>
+                            なんか代わりになるものを入れておいて
+                        </div>
+                        // <MeetingRoom>
+                        //     <p className="text-gray-500 text-xs absolute top-4 right-4">
+                        //         Logged in as: {user?.email || "Guest"}
+                        //     </p>
+                        // </MeetingRoom>
+              )
+            }
                 </StreamTheme>
             </StreamCall>
         </main>
