@@ -48,7 +48,7 @@ const MeetingTypeList = () => {
       await call.getOrCreate();
 
       setCallDetails(call);
-      setIsMeetingCreated(true); 
+      setIsMeetingCreated(true);
       toast({ title: "Meeting Started", description: `Meeting ID: ${id}` });
 
       // Redirect to the video call
@@ -77,9 +77,9 @@ const MeetingTypeList = () => {
       console.error(error);
       toast({ title: "Failed to create meeting" });
     }
-  }
+  };
 
-  const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetails?.id}`
+  const meetingLink = `${process.env.NEXT_PUBLIC_BASE_URL}/meeting/${callDetails?.id}`;
 
   return (
     <section className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -105,7 +105,7 @@ const MeetingTypeList = () => {
         img="/icons/recordings.svg"
         title="View Recordings"
         description="Check out your recordings"
-        handleClick={() => router.push('/recordings')}
+        handleClick={() => router.push("/recordings")}
         className="bg-purple-1"
       />
 
@@ -158,13 +158,16 @@ const MeetingTypeList = () => {
           title="Meeting Created"
           buttonText="Copy Invitation"
           handleClick={() => {
-            navigator.clipboard.writeText("Meeting link copied!");
-            toast({ title: "Link copied!" });
+            navigator.clipboard.writeText(meetingLink);
+            toast({
+              title: "Link copied!",
+              description: `Copied: ${meetingLink}`,
+            });
           }}
-
         >
           <div>
             <p className="text-gray-300 text-sm">Your meeting has been successfully created.</p>
+            <p className="text-gray-500 text-xs mt-2">Meeting Link: {meetingLink}</p>
           </div>
         </MeetingModal>
       )}

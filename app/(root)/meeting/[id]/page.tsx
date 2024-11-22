@@ -10,24 +10,31 @@ import { useState } from 'react';
 
 const Meeting = ({ params: { id } }: { params: { id: string } }) => {
     const { user, isLoaded } = useUser();
-    const [isSetupComplete, setIsSetupComplete] = useState(false)
+    const [isSetupComplete, setIsSetupComplete] = useState(false);
     const { call, isCallLoading } = useGetCallById(id);
 
-    if(!isLoaded || isCallLoading) return <Loader />
-    
+    // ローディング中の場合の処理
+    if (!isLoaded || isCallLoading) {
+        return <Loader />;
+    }
+
     return (
         <main className="h-screen w-full">
             <StreamCall call={call}>
                 <StreamTheme>
-                  {!isSetupComplete ? (
-                    <MeetingSetup setIsSetupComplete={setIsSetupComplete} />    
-                  ) : (
-                    <MeetingRoom />
-                  )}  
-              </StreamTheme>
+                    {!isSetupComplete ? (
+                        <MeetingSetup setIsSetupComplete={setIsSetupComplete} />
+                    ) : (
+                        <MeetingRoom>
+                            <p className="text-gray-500 text-xs absolute top-4 right-4">
+                                Logged in as: {user?.email || "Guest"}
+                            </p>
+                        </MeetingRoom>
+                    )}
+                </StreamTheme>
             </StreamCall>
         </main>
-    )
-}
+    );
+};
 
-export default Meeting
+export default Meeting;
